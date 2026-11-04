@@ -10,18 +10,42 @@
     <script src="https://unpkg.com/supersimpledev/react.js"></script>
     <script src="https://unpkg.com/supersimpledev/react-dom.js"></script>
 
+    <script src="https://unpkg.com/supersimpledev/chatbot.js"></script>
+
     <script src="https://unpkg.com/supersimpledev/babel.js"></script>
     <script type="text/babel">
-      function chatinput(){
+      function ChatInput({chatMessages,setChatMessages}){
         const[inputText,setInputText]=React.useState('');
         function saveInputText(event){
-            console.log(event.target.value)
+            setInputText(event.target.value)
+        }
+
+        function sendMessage(){
+            const newChatMessages=[
+                    ...chatMessages,{
+                        message:inputText,
+                        sender:'User',
+                        id: crypto.randomUUID()
+                   }
+            ]
+
+            setChatMessages(newChatMessages);
+
+            const response = Chatbot.getResponse(inputText);
+            setChatMessages([
+                ...newChatMessages,{
+                    message:response,
+                    sender:'Chatbot',
+                    id: crypto.randomUUID()
+                   }
+            ]);
+            setInputText('');
         }
 
         return(
             <>
-                <input placeholder="Send a message to ChatBot" size="30" onChange={saveInputText}/>
-                <button>Send</button>
+                <input placeholder="Send a message to ChatBot" size="30" onChange={saveInputText} value={inputText}/>
+                <button onClick={sendMessage}>Send</button>
             </>
         );
       }
@@ -48,34 +72,23 @@
         }
 
 
-        function ChatMessages(){
-            const array = React.useState(
-                [{
-                message:'hello chatbot',sender:'User',id:'1'
-                },{
-                message:"Hello! How can i help you today?" ,sender:"Chatbot",id:'2'
-                },{
-                message:"can you flip a coin", sender:"User",id:'3'
-                },{
-                message:"Sure! It flipped to Heads.", sender:"Chatbot",id:'4'
-            }]);
+        function ChatMessages({chatMessages}){
+            // const array = React.useState(
+            //     [{
+            //     message:'hello chatbot',sender:'User',id:'1'
+            //     },{
+            //     message:"Hello! How can i help you today?" ,sender:"Chatbot",id:'2'
+            //     },{
+            //     message:"can you flip a coin", sender:"User",id:'3'
+            //     },{
+            //     message:"Sure! It flipped to Heads.", sender:"Chatbot",id:'4'
+            // }]);
 
-            const [chatMessages,setChatMessages]=array;
-            // const chatMessages = array[0];
-            // const setChatMessages = array[1];
+            
 
-            function SendMessage(){
-                setChatMessages([
-                    ...chatMessages,{
-                        message:'test',
-                        sender:'User',
-                        id: crypto.randomUUID()
-                    }
-                ]);
-            }
+
             return(
                 <>
-                    <button onClick={SendMessage}>Send Message</button>
                     {chatMessages.map((chatMessage)=>{
                         return(<ChatMsg message={chatMessage.message} sender={chatMessage.sender} key={chatMessage.id}/>)
                     })}
@@ -86,10 +99,38 @@
 
 
         function App(){
+
+            const [chatMessages,setChatMessages]=React.useState([
+
+                {
+                    message: 'hello chatbot',
+                    sender: 'User',
+                    id: '1'
+                },
+                {
+                    message: 'Hello! How can I help you today?',
+                    sender: 'Chatbot',
+                    id: '2'
+                },
+                {
+                    message: 'can you flip a coin',
+                    sender: 'User',
+                    id: '3'
+                },
+                {
+                    message: 'Sure! It flipped to Heads.',
+                    sender: 'Chatbot',
+                    id: '4'
+                }
+            ]);
+            
+            // const chatMessages = array[0];
+            // const setChatMessages = array[1];
+
             return(
                 <>
-                    {chatinput()}
-                    {ChatMessages()}
+                    <ChatInput chatMessages={chatMessages} setChatMessages={setChatMessages}/>
+                    <ChatMessages chatMessages={chatMessages}/>
                 </>        
             );
         }
