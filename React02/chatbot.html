@@ -2,6 +2,75 @@
 <html>
   <head>
     <title>ChatBot</title>
+    <style>
+        body{
+            font-family: Arial;
+        }
+        .Send-Button{
+            background-color: rgb(25,135,84);
+            color : white;
+            padding: 12px 20px;
+            margin-left: 10px;
+            border: none;
+            border-radius: 10px;
+            font-size: 15px;
+            cursor: pointer;
+        }
+
+        .Input{
+            padding: 12px 15px;
+            border-radius: 10px;
+            border-width: 1px;
+            font-size: 15px;
+
+            flex-grow: 1;
+        }
+
+        .flex-box{
+            display: flex;
+            margin-bottom: 60px;
+        }
+
+        .to-mid{
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .chat-msg-user{
+            display: flex;
+            justify-content: end;
+            align-items: start;
+        }
+        .chat-msg-chatbot{
+            display: flex;
+            align-items: start;            
+        }
+        .chat-msg-text{
+            background-color: rgb(238,238,238);
+            border-radius: 10px;
+            padding: 15px 20px;
+            margin-right: 10px;
+            margin-left: 10px;
+            margin-bottom: 20px;
+            max-width: 300px;
+        }
+        .chat-msg-profile{
+            width: 45px;
+            border-radius: 360px;
+        }
+        .chat-msg-bottom{
+            flex-grow: 1;
+            margin-top: 20px;
+            overflow: scroll;
+            scrollbar-width: none;
+        }
+
+    </style>
     <script src="script.ts"></script>
   </head>
   <body>
@@ -43,10 +112,10 @@
         }
 
         return(
-            <>
-                <input placeholder="Send a message to ChatBot" size="30" onChange={saveInputText} value={inputText}/>
-                <button onClick={sendMessage}>Send</button>
-            </>
+            <div className="flex-box">
+                <input placeholder="Send a message to ChatBot" size="30" onChange={saveInputText} value={inputText} className="Input"/>
+                <button onClick={sendMessage} className="Send-Button">Send</button>
+            </div>
         );
       }
 
@@ -63,16 +132,25 @@
         //     );
         // }
             return(
-                <div>
-                    {sender ==='Chatbot' && <img src="chatbot.jpg" width="40"/>}
-                    {message}
-                    {sender === 'User' && <img src="user.jpg" width="40" />}
+                <div className={sender==='User'?'chat-msg-user':'chat-msg-chatbot'}>
+                    {sender ==='Chatbot' && <img src="chatbot.jpg" className='chat-msg-profile'/>}
+                    <div className="chat-msg-text">
+                        {message}
+                    </div>
+                    {sender === 'User' && <img src="user.jpg" className='chat-msg-profile' />}
                 </div>
             );
         }
 
 
         function ChatMessages({chatMessages}){
+            const chatMsgRef=React.useRef(null);
+            React.useEffect(()=>{
+                const containerElem=chatMsgRef.current;
+                if (containerElem){
+                    containerElem.scrollTop=containerElem.scrollHeight;
+                }
+            },[chatMessages]);
             // const array = React.useState(
             //     [{
             //     message:'hello chatbot',sender:'User',id:'1'
@@ -83,16 +161,12 @@
             //     },{
             //     message:"Sure! It flipped to Heads.", sender:"Chatbot",id:'4'
             // }]);
-
-            
-
-
             return(
-                <>
+                <div className="chat-msg-bottom" ref={chatMsgRef}>
                     {chatMessages.map((chatMessage)=>{
                         return(<ChatMsg message={chatMessage.message} sender={chatMessage.sender} key={chatMessage.id}/>)
                     })}
-                </>
+                </div>
             );
         }
 
@@ -128,10 +202,10 @@
             // const setChatMessages = array[1];
 
             return(
-                <>
-                    <ChatInput chatMessages={chatMessages} setChatMessages={setChatMessages}/>
+                <div className="to-mid">
                     <ChatMessages chatMessages={chatMessages}/>
-                </>        
+                    <ChatInput chatMessages={chatMessages} setChatMessages={setChatMessages}/>
+                </div>        
             );
         }
 
